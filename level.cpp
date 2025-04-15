@@ -55,8 +55,8 @@ void Game::init_game() {
 	//Compute appropriate grid positioning and size
 	jaw::Point win_size = window->getProperties().size;
 
-	if (level.head.x * 16 > win_size.x * 0.95
-		|| level.head.y * 16 > win_size.y * 0.95) 
+	if (level.head.x * 16 > win_size.x * 0.90
+		|| level.head.y * 16 > win_size.y * 0.90) 
 	{
 		engine->ShowCMD(true);
 		std::cout << "Error: Window resolution too small for a level of this size";
@@ -64,8 +64,8 @@ void Game::init_game() {
 	}
 
 	tile_scale = (int)std::min(
-		win_size.x * 0.95 / level.head.x / 16,
-		win_size.y * 0.95 / level.head.y / 16
+		win_size.x * 0.90 / level.head.x / 16,
+		win_size.y * 0.90 / level.head.y / 16
 	);
 
 	jaw::Point grid_size(
@@ -400,6 +400,7 @@ void Game::loop_game() {
 
 		//Check win condition
 		win = false;
+		int hit_count = 0;
 		jaw::Point target_pos(-1, -1);
 		TileStats target{};
 		for (int i = 0; i < level.head.x; i++) {
@@ -412,12 +413,14 @@ void Game::loop_game() {
 		}
 		if (target_pos != jaw::Point(-1, -1)) {
 			for (auto& l : light_path) {
-				if ((l.first.second == target_pos) &&
-					l.second == color_eval(target.color))
-				{
-					win = true;
+				if (l.first.second == target_pos) {
+					hit_count++;
+					if (l.second == color_eval(target.color)) {
+						win = true;
+					}
 				}
 			}
+			if (hit_count != 1) light_oob = true;
 		}
 	}
 
